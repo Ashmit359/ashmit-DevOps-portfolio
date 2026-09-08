@@ -49,7 +49,7 @@ export function ContactForm() {
   if (status === "success") {
     return (
       <div className="rounded-lg border border-wire/40 bg-wire/10 p-5 text-sm text-wire-bright">
-        Message received. I'll get back to you soon.
+        Message received. I&apos;ll get back to you soon.
       </div>
     );
   }

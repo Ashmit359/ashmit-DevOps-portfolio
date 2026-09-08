@@ -53,7 +53,7 @@ export function FlowDiagram({ nodes }: { nodes: DiagramNode[] }) {
                 <dd className="mt-1 text-sm text-graphite-300">{active.what}</dd>
               </div>
               <div>
-                <dt className="text-xs uppercase text-graphite-500">Why it's used</dt>
+                <dt className="text-xs uppercase text-graphite-500">Why it&apos;s used</dt>
                 <dd className="mt-1 text-sm text-graphite-300">{active.why}</dd>
               </div>
               {active.security && (

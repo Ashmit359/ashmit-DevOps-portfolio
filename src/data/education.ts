@@ -8,8 +8,8 @@ export interface Education {
 export const education: Education[] = [
   {
     id: "edu-1",
-    institution: "[EDIT: Add institution name]",
-    degree: "[EDIT: Add degree/field of study]",
-    duration: "[EDIT: Add start – end year]",
+    institution: "Chandigarh University, Mohali, Punjab",
+    degree: "Master of Computer Applications (MCA)",
+    duration: "2022 - 2024",
   },
 ];

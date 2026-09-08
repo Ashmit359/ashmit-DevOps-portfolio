@@ -1,3 +1,4 @@
+import ParticleBackground from "@/components/ParticleBackground";
 import type { Metadata } from "next";
 import "./globals.css";
 import { Header } from "@/components/header";
@@ -58,6 +59,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark" suppressHydrationWarning>
       <body>
+        <ParticleBackground />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }}

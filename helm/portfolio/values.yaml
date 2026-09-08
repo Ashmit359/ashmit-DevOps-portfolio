@@ -1,0 +1,35 @@
+replicaCount: 2
+
+image:
+  repository: 499133675204.dkr.ecr.ap-south-1.amazonaws.com/ashmit-portfolio
+  tag: latest
+  pullPolicy: Always
+
+imagePullSecrets:
+  - name: ecr-registry-secret
+
+service:
+  type: NodePort
+  port: 3000
+  targetPort: 3000
+
+ingress:
+  enabled: true
+  className: nginx
+  host: ashmitdevops.online
+  wwwHost: www.ashmitdevops.online
+
+  tls:
+   enabled: true
+   secretName: portfolio-tls
+
+blueGreen:
+  activeColor: blue
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi

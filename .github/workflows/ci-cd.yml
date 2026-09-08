@@ -38,6 +38,7 @@ jobs:
       - name: Run tests
         run: npm test --if-present
 
+
   build-and-push:
     name: Build and Push Docker Image
     runs-on: ubuntu-latest
@@ -47,43 +48,94 @@ jobs:
       image_tag: ${{ steps.image.outputs.image_tag }}
 
     steps:
-
       - name: Checkout repository
         uses: actions/checkout@v4
 
+
+      # ==========================================
+      # DEBUG GITHUB OIDC CONTEXT
+      # ==========================================
       - name: Debug GitHub OIDC context
         run: |
-          echo "Repository: $GITHUB_REPOSITORY"
-          echo "Ref: $GITHUB_REF"
-          echo "Branch: $GITHUB_REF_NAME"
-          echo "Event: $GITHUB_EVENT_NAME"
+          echo "=========================================="
+          echo "GitHub OIDC Debug Information"
+          echo "=========================================="
+          echo "Repository       : $GITHUB_REPOSITORY"
+          echo "Repository ID    : ${{ github.repository_id }}"
+          echo "Owner            : ${{ github.repository_owner }}"
+          echo "Owner ID         : ${{ github.repository_owner_id }}"
+          echo "Ref              : $GITHUB_REF"
+          echo "Branch           : $GITHUB_REF_NAME"
+          echo "Event            : $GITHUB_EVENT_NAME"
+          echo "Commit SHA       : $GITHUB_SHA"
+          echo "Workflow         : $GITHUB_WORKFLOW"
+          echo "=========================================="
 
+
+      # ==========================================
+      # AWS OIDC AUTHENTICATION
+      # ==========================================
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ vars.AWS_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
 
+
+      # ==========================================
+      # VERIFY AWS IDENTITY
+      # ==========================================
+      - name: Verify AWS identity
+        run: |
+          echo "=========================================="
+          echo "AWS Identity"
+          echo "=========================================="
+          aws sts get-caller-identity
+          echo "=========================================="
+
+
+      # ==========================================
+      # LOGIN TO ECR
+      # ==========================================
       - name: Login to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v2
 
+
+      # ==========================================
+      # GENERATE IMMUTABLE IMAGE TAG
+      # ==========================================
       - name: Generate image tag
         id: image
         run: |
           IMAGE_TAG="${GITHUB_SHA::7}"
-          echo "image_tag=$IMAGE_TAG" >> "$GITHUB_OUTPUT"
-          echo "Docker image tag: $IMAGE_TAG"
 
+          echo "image_tag=$IMAGE_TAG" >> "$GITHUB_OUTPUT"
+
+          echo "=========================================="
+          echo "Docker Image Tag"
+          echo "=========================================="
+          echo "$IMAGE_TAG"
+          echo "=========================================="
+
+
+      # ==========================================
+      # BUILD DOCKER IMAGE
+      # ==========================================
       - name: Build Docker image
         run: |
           docker build \
-            -t $ECR_REGISTRY/$ECR_REPOSITORY:${GITHUB_SHA::7} \
+            -t "$ECR_REGISTRY/$ECR_REPOSITORY:${GITHUB_SHA::7}" \
             .
 
+
+      # ==========================================
+      # PUSH DOCKER IMAGE TO ECR
+      # ==========================================
       - name: Push Docker image
         run: |
           docker push \
-            $ECR_REGISTRY/$ECR_REPOSITORY:${GITHUB_SHA::7}
+            "$ECR_REGISTRY/$ECR_REPOSITORY:${GITHUB_SHA::7}"
+
 
   deploy:
     name: Deploy to Kubernetes
@@ -92,12 +144,16 @@ jobs:
 
     steps:
 
+      # ==========================================
+      # DEPLOY TO KIND KUBERNETES VM USING SSH
+      # ==========================================
       - name: Deploy using SSH
         uses: appleboy/ssh-action@v1.2.2
         with:
           host: ${{ vars.VM_HOST }}
           username: ${{ vars.VM_USER }}
           key: ${{ secrets.VM_SSH_KEY }}
+
           script: |
             set -e
 
@@ -107,16 +163,28 @@ jobs:
 
             cd ~/ashmit-DevOps-portfolio
 
-            echo "Pulling latest GitHub changes..."
+            echo "================================="
+            echo "Pulling latest GitHub changes"
+            echo "================================="
+
             git pull origin main
 
-            echo "Checking Kubernetes..."
+            echo "================================="
+            echo "Checking Kubernetes"
+            echo "================================="
+
             kubectl get nodes
 
-            echo "Checking Helm..."
+            echo "================================="
+            echo "Checking Helm"
+            echo "================================="
+
             helm version
 
-            echo "Deploying image:"
+            echo "================================="
+            echo "Deploying image"
+            echo "================================="
+
             echo "${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ needs.build-and-push.outputs.image_tag }}"
 
             helm upgrade --install portfolio ./helm/portfolio \
@@ -129,8 +197,26 @@ jobs:
             echo "Deployment completed"
             echo "================================="
 
-            echo "Pods:"
+            echo "================================="
+            echo "Pods"
+            echo "================================="
+
             kubectl get pods
 
-            echo "Ingress:"
+            echo "================================="
+            echo "Deployment"
+            echo "================================="
+
+            kubectl get deployment portfolio-portfolio
+
+            echo "================================="
+            echo "Service"
+            echo "================================="
+
+            kubectl get service portfolio-portfolio
+
+            echo "================================="
+            echo "Ingress"
+            echo "================================="
+
             kubectl get ingress

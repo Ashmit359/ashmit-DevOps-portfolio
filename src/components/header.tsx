@@ -14,6 +14,8 @@ const primaryLinks = [
   { href: "/skills", label: "Skills" },
   { href: "/aws", label: "AWS" },
   { href: "/kubernetes", label: "Kubernetes" },
+  { href: "/monitoring", label: "Monitoring" },
+  { href: "/certifications", label: "Certifications" },
   { href: "/projects", label: "Projects" },
   { href: "/blog", label: "Blog" },
   { href: "/resume", label: "Resume" },

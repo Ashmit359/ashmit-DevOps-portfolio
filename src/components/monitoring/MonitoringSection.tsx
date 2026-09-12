@@ -199,7 +199,7 @@ export default function MonitoringSection() {
   return (
     <section id="monitoring" className="relative border-t border-white/5 bg-black py-20">
       <div className="mx-auto max-w-5xl px-6">
-        <div className="mb-8 flex items-center justify-between">
+        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h2 className="text-2xl font-semibold text-white">Live infrastructure</h2>
             <p className="mt-1 text-sm text-neutral-400">
